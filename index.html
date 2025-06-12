@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMs for UK Estate Agents: An Interactive Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Black & Teal Modern -->
+    <!-- Application Structure Plan: A single-page application with a sticky top navigation bar anchoring to thematic sections. This non-linear structure allows users (UK Estate Agents) to jump directly to their areas of interest (e.g., text generation, client communication, getting started), promoting self-directed learning over a passive slide-by-slide viewing. The flow is designed to first establish the 'Why' (Landscape), then demystify the 'What' (LLM Basics), show the 'How' (LLM Applications & Roadmap), and finally provide practical 'LLM Tools'. This logical progression from context to action is intuitive and user-friendly for property professionals looking for tangible solutions primarily through text-based AI. -->
+    <!-- Visualization & Content Choices:
+        - Business Challenges (Doughnut Charts): Goal: Inform/Compare. Method: Chart.js. Interaction: Hover tooltips. Justification: Visualizes proportions of general business challenges still relevant to estate agencies, setting context for LLM solutions.
+        - AI Adoption Barriers (Doughnut Charts): Goal: Inform/Compare. Method: Chart.js. Interaction: Hover tooltips. Justification: Visualizes specific UK business leader concerns regarding AI adoption, highlighting how LLMs can overcome these.
+        - LLM Myths (Flippable Cards): Goal: Engage/Inform. Method: HTML/CSS/JS. Interaction: Click to flip. Justification: Creates a memorable, interactive way to debunk common misconceptions tailored to LLMs in property.
+        - LLM Applications (Filterable Grid): Goal: Organize/Inform. Method: HTML/JS. Interaction: Click category buttons to filter. Justification: Prevents information overload by allowing users to view only the LLM applications relevant to specific estate agency functions.
+        - LLM Roadmap (Interactive Stepper): Goal: Guide/Organize. Method: HTML/CSS/JS. Interaction: Click step to reveal details. Justification: A visual process flow tailored to LLM integration in a property business is intuitive and less intimidating.
+        - New Interactive LLM Tools: Property Description Generator and Client Communication Drafter. Goal: Direct application of LLM capabilities. Method: HTML/JS with Gemini API calls. Interaction: Text input, button click to generate, display output. Justification: Provides immediate, hands-on demonstration of LLM power for key estate agency tasks, enhancing engagement and understanding of practical benefits.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; color: #e0e0e0; }
+        .chart-container { position: relative; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        .card { perspective: 1000px; }
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 0.75rem; }
+        .card-back { transform: rotateY(180deg); }
+        .nav-link { transition: color 0.3s, border-color 0.3s; }
+        .nav-link.active { color: #00BCD4; border-bottom-color: #00BCD4; }
+        .nav-link:not(.active) { border-bottom-color: transparent; }
+    </style>
+</head>
+<body class="bg-[#1a1a1a] text-[#e0e0e0]">
+
+    <header id="header" class="bg-[#1a1a1a]/80 backdrop-blur-md sticky top-0 z-50 shadow-lg">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-xl font-bold text-[#00BCD4]">LLMs for UK Estate Agents</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#landscape" class="nav-link px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00BCD4] border-b-2">The Landscape</a>
+                        <a href="#demystify" class="nav-link px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00BCD4] border-b-2">Demystified</a>
+                        <a href="#applications" class="nav-link px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00BCD4] border-b-2">In Action</a>
+                        <a href="#roadmap" class="nav-link px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00BCD4] border-b-2">Roadmap</a>
+                        <a href="#toolkit" class="nav-link px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00BCD4] border-b-2">Toolkit</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#00BCD4]">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-menu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="#landscape" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-[#00BCD4] hover:bg-gray-800">The Landscape</a>
+                    <a href="#demystify" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-[#00BCD4] hover:bg-gray-800">Demystified</a>
+                    <a href="#applications" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-[#00BCD4] hover:bg-gray-800">In Action</a>
+                    <a href="#roadmap" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-[#00BCD4] hover:bg-gray-800">Roadmap</a>
+                    <a href="#toolkit" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-[#00BCD4] hover:bg-gray-800">Toolkit</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="hero" class="text-center py-20 sm:py-24">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-[#00BCD4]">Empowering UK Estate Agents with <span class="text-[#20c997]">Large Language Models (LLMs)</span></h1>
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-300">This guide focuses on entry-level utilization of LLMs for UK estate agencies, providing a clear path to harness their power for enhanced communication, content creation, and operational efficiency.</p>
+        </section>
+
+        <section id="landscape" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-100">The UK Property Market Landscape</h2>
+                <p class="mt-2 max-w-3xl mx-auto text-gray-300">UK estate agencies navigate a dynamic market with unique challenges and evolving opportunities. Understanding this environment is the first step toward leveraging LLMs as a strategic asset to not just compete, but lead, especially in text-heavy tasks.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-[#2a2a2a] p-6 rounded-xl shadow-lg">
+                    <h3 class="font-semibold text-xl text-center text-[#e57373]">General Business Challenges</h3>
+                    <div class="chart-container mx-auto">
+                        <canvas id="challengesChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-4 text-center">Rising operating costs and staffing issues remain top concerns for many UK businesses, including estate agencies. LLMs can help alleviate burdens on staff.</p>
+                </div>
+                <div class="bg-[#2a2a2a] p-6 rounded-xl shadow-lg">
+                    <h3 class="font-semibold text-xl text-center text-[#4CAF50]">LLM Adoption Barriers for UK Businesses</h3>
+                    <div class="chart-container mx-auto">
+                        <canvas id="barriersChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-4 text-center">Concerns about expertise, trust, and data quality are key hurdles to AI adoption across UK sectors. LLMs are increasingly user-friendly and address many of these.</p>
+                </div>
+                <div class="bg-[#2a2a2a] p-6 rounded-xl shadow-lg md:col-span-2 lg:col-span-1">
+                    <h3 class="font-semibold text-xl text-center text-[#00BCD4]">Key LLM Opportunities in UK Property</h3>
+                    <div class="flex flex-col justify-center h-full items-center text-center space-y-4 pt-4">
+                        <div class="p-4 bg-teal-900 rounded-lg">
+                             <p class="text-3xl font-bold text-teal-300">Time Savings</p>
+                            <p class="text-gray-300">Significant reduction in time spent on writing property descriptions, emails, and client communications.</p>
+                        </div>
+                         <div class="p-4 bg-teal-900 rounded-lg">
+                           <p class="text-3xl font-bold text-teal-300">Better Content</p>
+                           <p class="text-gray-300">Generate high-quality, engaging, and personalized textual content at scale for listings and marketing.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="demystify" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-100">LLMs, Demystified for Estate Agents</h2>
+                <p class="mt-2 max-w-3xl mx-auto text-gray-300">LLMs are powerful text-based AI tools. Here, we clarify what they are, how they work with language, and debunk common myths to build your confidence in their practical application in real estate for communication and content.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card h-64">
+                    <div class="card-inner">
+                        <div class="card-front bg-[#2a2a2a] shadow-lg">
+                            <h4 class="font-bold text-lg text-center mb-2 text-[#00BCD4]">Myth: LLMs are just glorified auto-correct.</h4>
+                             <button class="debunk-btn mt-4 bg-teal-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-teal-600 transition">Debunk It</button>
+                        </div>
+                        <div class="card-back bg-[#00838F] text-white shadow-lg">
+                             <h4 class="font-bold text-lg text-center mb-2">Reality</h4>
+                             <p class="text-center text-sm">LLMs understand and generate human-like text, summarize documents, answer complex questions, and even draft creative content, far beyond simple corrections.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card h-64">
+                    <div class="card-inner">
+                        <div class="card-front bg-[#2a2a2a] shadow-lg">
+                            <h4 class="font-bold text-lg text-center mb-2 text-[#00BCD4]">Myth: Using LLMs requires coding skills.</h4>
+                             <button class="debunk-btn mt-4 bg-teal-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-teal-600 transition">Debunk It</button>
+                        </div>
+                        <div class="card-back bg-[#00838F] text-white shadow-lg">
+                            <h4 class="font-bold text-lg text-center mb-2">Reality</h4>
+                            <p class="text-center text-sm">Many popular LLM tools are user-friendly, web-based applications that require no coding. You interact by simply typing prompts and questions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card h-64">
+                    <div class="card-inner">
+                        <div class="card-front bg-[#2a2a2a] shadow-lg">
+                            <h4 class="font-bold text-lg text-center mb-2 text-[#00BCD4]">Myth: LLMs make agents sound generic.</h4>
+                             <button class="debunk-btn mt-4 bg-teal-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-teal-600 transition">Debunk It</button>
+                        </div>
+                        <div class="card-back bg-[#00838F] text-white shadow-lg">
+                             <h4 class="font-bold text-lg text-center mb-2">Reality</h4>
+                            <p class="text-center text-sm">With good 'prompt engineering', LLMs can adapt to your agency's tone and style, creating personalized and unique communications for clients and listings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="applications" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-100">LLMs in Action: Practical Applications for Estate Agencies</h2>
+                <p class="mt-2 max-w-3xl mx-auto text-gray-300">Discover real-world LLM applications that directly benefit your agency's communication and content creation. This section provides concrete examples of how LLMs can enhance client interactions, optimize marketing copy, and streamline text-heavy tasks. You can even try some interactive demos below!</p>
+            </div>
+            <div class="flex justify-center flex-wrap gap-2 mb-8">
+                <button class="app-filter-btn active bg-teal-600 text-white py-2 px-4 rounded-full" data-filter="all">All</button>
+                <button class="app-filter-btn bg-gray-700 text-gray-300 py-2 px-4 rounded-full" data-filter="client-comms">Client & Communication</button>
+                <button class="app-filter-btn bg-gray-700 text-gray-300 py-2 px-4 rounded-full" data-filter="content-gen">Content Generation</button>
+                <button class="app-filter-btn bg-gray-700 text-gray-300 py-2 px-4 rounded-full" data-filter="info-process">Information Processing</button>
+                <button class="app-filter-btn bg-gray-700 text-gray-300 py-2 px-4 rounded-full" data-filter="llm-demos">✨ LLM Demos</button>
+            </div>
+            <div id="app-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="client-comms">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">LLM-Powered Chatbots for Client Queries</h4>
+                    <p class="text-gray-300 mt-2">Provide instant, text-based answers to FAQs, schedule viewings, and offer basic support to clients 24/7 without human intervention.</p>
+                </div>
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="content-gen">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Generate Engaging Property Descriptions</h4>
+                    <p class="text-gray-300 mt-2">Input key features, and LLMs can quickly craft unique, descriptive, and engaging property write-ups for listings.</p>
+                </div>
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="info-process">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Summarize Client Feedback & Documents</h4>
+                    <p class="text-gray-300 mt-2">Rapidly condense long emails, call transcripts, legal documents, or inspection reports into concise summaries for quick review.</p>
+                </div>
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="content-gen">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Draft Personalized Marketing Emails & SMS</h4>
+                    <p class="text-gray-300 mt-2">Create tailored email campaigns, follow-ups, and SMS messages for leads or existing clients based on their preferences and interaction history.</p>
+                </div>
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="client-comms">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Automate Initial Email Responses</h4>
+                    <p class="text-gray-300 mt-2">Set up LLMs to draft polite and informative responses to common email inquiries, speeding up initial client contact.</p>
+                </div>
+                 <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="content-gen">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Generate Social Media Posts & Ad Copy</h4>
+                    <p class="text-gray-300 mt-2">Quickly produce engaging content for social media platforms and effective ad copy for property promotions, maintaining brand consistency.</p>
+                </div>
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="info-process">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Extract Key Information from Contracts</h4>
+                    <p class="text-gray-300 mt-2">Use LLMs to quickly identify and extract crucial details like dates, names, or specific clauses from tenancy agreements or legal documents.</p>
+                </div>
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="content-gen">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Write Internal Communications & Reports</h4>
+                    <p class="text-gray-300 mt-2">Draft internal memos, team updates, or preliminary reports on market trends, saving administrative time for agents.</p>
+                </div>
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg" data-category="client-comms">
+                    <h4 class="font-semibold text-lg text-[#00BCD4]">Create Personalized Property Match Descriptions</h4>
+                    <p class="text-gray-300 mt-2">Craft unique descriptions for potential buyers/renters by blending their preferences with property features, enhancing outreach.</p>
+                </div>
+
+                <!-- LLM Demos Section -->
+                <div class="app-card bg-[#2a2a2a] p-6 rounded-xl shadow-lg col-span-full" data-category="llm-demos">
+                    <h3 class="font-semibold text-2xl text-center text-[#00BCD4] mb-6">Interactive LLM Demos</h3>
+
+                    <!-- Property Description Generator -->
+                    <div class="mb-8 p-4 bg-gray-900 rounded-lg">
+                        <h4 class="font-bold text-xl text-[#20c997] mb-4">✨ Property Description Generator</h4>
+                        <p class="text-gray-300 mb-4">Enter key details about a property to generate a compelling description. Experiment with different features and tones!</p>
+                        <textarea id="property-details-input" class="w-full p-3 border border-gray-700 bg-gray-800 text-gray-100 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-[#00BCD4]" rows="5" placeholder="e.g., 3-bed semi-detached, sought-after Crouch End location, large garden, modern kitchen, close to schools and tube station, ideal family home."></textarea>
+                        <button id="generate-property-desc-btn" class="bg-teal-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-teal-600 transition flex items-center justify-center">
+                            Generate Description ✨
+                            <span id="prop-desc-loading" class="ml-2 hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        <div id="property-desc-output" class="mt-4 p-4 bg-gray-800 border border-gray-700 rounded-md text-gray-100 whitespace-pre-wrap min-h-[100px] flex items-center justify-center text-center">
+                            Your generated property description will appear here.
+                        </div>
+                    </div>
+
+                    <!-- Client Communication Drafter -->
+                    <div class="p-4 bg-gray-900 rounded-lg">
+                        <h4 class="font-bold text-xl text-[#20c997] mb-4">✨ Client Communication Drafter</h4>
+                        <p class="text-gray-300 mb-4">Describe a client communication scenario (e.g., email, SMS, follow-up) to get a drafted message.</p>
+                        <textarea id="comm-scenario-input" class="w-full p-3 border border-gray-700 bg-gray-800 text-gray-100 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-[#00BCD4]" rows="5" placeholder="e.g., Draft an email to a potential buyer who viewed 123 High Street and said they liked the garden but found the kitchen small. Suggest another property at 456 Elm Lane which has a large, modern kitchen."></textarea>
+                        <button id="generate-comm-btn" class="bg-teal-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-teal-600 transition flex items-center justify-center">
+                            Draft Communication ✨
+                            <span id="comm-loading" class="ml-2 hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        <div id="comm-output" class="mt-4 p-4 bg-gray-800 border border-gray-700 rounded-md text-gray-100 whitespace-pre-wrap min-h-[100px] flex items-center justify-center text-center">
+                            Your drafted communication will appear here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-100">Your Phased LLM Integration Roadmap for Estate Agencies</h2>
+                <p class="mt-2 max-w-3xl mx-auto text-gray-300">Successfully integrating LLMs into your estate agency involves a structured, step-by-step process. This roadmap provides a clear guide, ensuring your LLM adoption is manageable, goal-oriented, and leads to sustainable benefits, focusing on text-based efficiencies.</p>
+            </div>
+            <div class="w-full max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="roadmap-step text-center cursor-pointer" data-step="1">
+                        <div class="step-circle mx-auto flex items-center justify-center w-12 h-12 bg-gray-700 text-gray-300 rounded-full font-bold text-xl transition">1</div>
+                        <p class="mt-2 text-sm font-semibold">Identify Text Pains</p>
+                    </div>
+                    <div class="flex-1 h-px bg-gray-700 hidden md:block"></div>
+                    <div class="roadmap-step text-center cursor-pointer" data-step="2">
+                        <div class="step-circle mx-auto flex items-center justify-center w-12 h-12 bg-gray-700 text-gray-300 rounded-full font-bold text-xl transition">2</div>
+                        <p class="mt-2 text-sm font-semibold">Prompt Strategy</p>
+                    </div>
+                     <div class="flex-1 h-px bg-gray-700 hidden md:block"></div>
+                    <div class="roadmap-step text-center cursor-pointer" data-step="3">
+                        <div class="step-circle mx-auto flex items-center justify-center w-12 h-12 bg-gray-700 text-gray-300 rounded-full font-bold text-xl transition">3</div>
+                        <p class="mt-2 text-sm font-semibold">Choose LLM Tools</p>
+                    </div>
+                     <div class="flex-1 h-px bg-gray-700 hidden md:block"></div>
+                    <div class="roadmap-step text-center cursor-pointer" data-step="4">
+                        <div class="step-circle mx-auto flex items-center justify-center w-12 h-12 bg-gray-700 text-gray-300 rounded-full font-bold text-xl transition">4</div>
+                        <p class="mt-2 text-sm font-semibold">Train on Prompts</p>
+                    </div>
+                     <div class="flex-1 h-px bg-gray-700 hidden md:block"></div>
+                    <div class="roadmap-step text-center cursor-pointer" data-step="5">
+                        <div class="step-circle mx-auto flex items-center justify-center w-12 h-12 bg-gray-700 text-gray-300 rounded-full font-bold text-xl transition">5</div>
+                        <p class="mt-2 text-sm font-semibold">Pilot & Scale</p>
+                    </div>
+                     <div class="flex-1 h-px bg-gray-700 hidden md:block"></div>
+                    <div class="roadmap-step text-center cursor-pointer" data-step="6">
+                        <div class="step-circle mx-auto flex items-center justify-center w-12 h-12 bg-gray-700 text-gray-300 rounded-full font-bold text-xl transition">6</div>
+                        <p class="mt-2 text-sm font-semibold">Monitor & Refine</p>
+                    </div>
+                </div>
+                <div id="roadmap-details" class="mt-8 bg-[#2a2a2a] p-8 rounded-xl shadow-inner min-h-[150px]">
+                    <div data-step-content="1" class="step-content hidden">
+                        <h4 class="font-bold text-xl text-[#00BCD4]">Step 1: Identify Specific Text-Based Pain Points & Goals</h4>
+                        <p class="mt-2 text-gray-300">Pinpoint areas where writing, summarizing, or understanding text is time-consuming. Examples include drafting property descriptions, responding to common client emails, or summarizing long reports. Set goals like "reduce time spent writing property descriptions by 50%."</p>
+                    </div>
+                    <div data-step-content="2" class="step-content hidden">
+                        <h4 class="font-bold text-xl text-[#00BCD4]">Step 2: Develop a Prompt Strategy for Your Agency</h4>
+                        <p class="mt-2 text-gray-300">LLMs respond to prompts. Develop clear, consistent guidelines for what information to include in prompts (e.g., property features, target audience, desired tone) to get the best and most relevant outputs for your agency's needs.</p>
+                    </div>
+                    <div data-step-content="3" class="step-content hidden">
+                        <h4 class="font-bold text-xl text-[#00BCD4]">Step 3: Research & Choose User-Friendly LLM Tools</h4>
+                        <p class="mt-2 text-gray-300">Select LLM tools that are easy to use and align with your identified needs (e.g., general chatbots for drafting, specialized tools for summarization). Prioritize web-based platforms that require no coding and can integrate with existing communication channels.</p>
+                    </div>
+                     <div data-step-content="4" class="step-content hidden">
+                        <h4 class="font-bold text-xl text-[#00BCD4]">Step 4: Train Staff on Effective Prompting & Review</h4>
+                        <p class="mt-2 text-gray-300">Train your team not just on how to use LLM tools, but crucially, how to write effective prompts to get desired outputs and how to critically review and refine the LLM's generated text for accuracy, tone, and brand consistency.</p>
+                    </div>
+                    <div data-step-content="5" class="step-content hidden">
+                        <h4 class="font-bold text-xl text-[#00BCD4]">Step 5: Implement Pilot Programs & Scale Gradually</h4>
+                        <p class="mt-2 text-gray-300">Begin with a small-scale pilot, such as using an LLM to draft initial property descriptions for a specific subset of listings. Assess the time savings and quality, then gradually expand its use to other text-based tasks across the agency.</p>
+                    </div>
+                     <div data-step-content="6" class="step-content hidden">
+                        <h4 class="font-bold text-xl text-[#00BCD4]">Step 6: Continuous Monitoring & Refinement of LLM Use</h4>
+                        <p class="mt-2 text-gray-300">Regularly assess the impact of LLMs on efficiency and quality. Collect feedback from agents and clients. Stay updated on new LLM capabilities and prompt engineering techniques to continuously optimize your agency's text-based AI strategy.</p>
+                    </div>
+                     <div id="roadmap-prompt" class="text-center text-gray-500">
+                        <p>Click a step to see the details.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="toolkit" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-100">Your LLM Toolkit for UK Estate Agents</h2>
+                <p class="mt-2 max-w-3xl mx-auto text-gray-300">The market now offers accessible and affordable LLM solutions perfect for enhancing text-based tasks in estate agencies. This curated list provides examples of popular tools for various needs, giving you a strong starting point for your LLM journey.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">General Purpose LLMs</h4>
+                    <p class="text-sm text-gray-300 mt-1">For brainstorming, content generation, summarization, and Q&A.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: ChatGPT, Gemini, Claude</p>
+                </div>
+                 <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">Automated Content Writers</h4>
+                    <p class="text-sm text-gray-300 mt-1">To generate property descriptions, blog posts, and marketing copy.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: Jasper, Copy.ai, Rytr</p>
+                </div>
+                 <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">Email & Communication Assistants</h4>
+                    <p class="text-sm text-gray-300 mt-1">To draft emails, automate responses, and personalize client messages.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: Smart Reply (in Gmail/Outlook), Mailchimp AI, tools integrated with CRM</p>
+                </div>
+                 <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">Document Summarization & Analysis</h4>
+                    <p class="text-sm text-gray-300 mt-1">To quickly get key points from long contracts, reports, or client notes.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: Notion AI, Fireflies (for meeting notes), specialized legal AI tools</p>
+                </div>
+                <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">Social Media Content Creation</h4>
+                    <p class="text-sm text-gray-300 mt-1">For drafting engaging social media captions and post ideas related to properties.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: Buffer AI Assistant, Hootsuite AI, general LLMs</p>
+                </div>
+                <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">Basic Research & Market Insights</h4>
+                    <p class="text-sm text-gray-300 mt-1">To quickly gather and summarize public textual information on local market trends or property regulations.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: General LLMs (with careful verification), tools like AnswerThePublic for keyword research</p>
+                </div>
+                 <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">Internal Communication Drafting</h4>
+                    <p class="text-sm text-gray-300 mt-1">To assist with writing internal memos, training materials, or team updates efficiently.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: Microsoft 365 Copilot, Google Workspace Duet AI, general LLMs</p>
+                </div>
+                 <div class="bg-[#2a2a2a] p-5 rounded-xl shadow-lg">
+                    <h4 class="font-semibold text-[#00BCD4]">CRM Text Enhancement</h4>
+                    <p class="text-sm text-gray-300 mt-1">To automatically generate personalized notes, follow-up tasks, or client profiles within CRM systems.</p>
+                    <p class="font-medium text-gray-100 mt-3">Examples: HubSpot AI features, Zoho CRM AI, integrated LLMs in prop-tech CRMs</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-900 text-white mt-16">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p>Ready to empower your estate agency with LLMs?</p>
+            <p class="text-sm text-gray-400 mt-2">This interactive guide is designed to be your first step.</p>
+        </div>
+    </footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    boxWidth: 12,
+                    font: {
+                        size: 12,
+                        color: '#e0e0e0' // Light color for legend text
+                    },
+                    generateLabels: function(chart) {
+                        const data = chart.data;
+                        if (data.labels.length && data.datasets.length) {
+                            return data.labels.map(function(label, i) {
+                                // Directly access colors from the dataset
+                                const color = data.datasets[0].backgroundColor[i];
+                                const borderColor = data.datasets[0].borderColor[i];
+                                const value = data.datasets[0].data[i];
+                                const sum = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / sum) * 100).toFixed(1);
+
+                                return {
+                                    text: `${label} (${percentage}%)`,
+                                    fillStyle: color,
+                                    strokeStyle: borderColor,
+                                    lineWidth: 2, // Assuming border width is always 2 as per dataset
+                                    hidden: isNaN(value) || chart.getDatasetMeta(0).data[i].hidden, // Use chart.getDatasetMeta(0).data[i].hidden
+                                    index: i
+                                };
+                            });
+                        }
+                        return [];
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        if (context.parsed !== null) {
+                            label += ': ' + context.parsed + '%';
+                        }
+                        return label;
+                    }
+                }
+            }
+        },
+        cutout: '60%',
+    };
+
+    const challengesCtx = document.getElementById('challengesChart')?.getContext('2d');
+    if (challengesCtx) {
+        new Chart(challengesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rising Operating Costs', 'Supply Chain Disruptions', 'Staffing Challenges'],
+                datasets: [{
+                    label: 'Business Challenges',
+                    data: [47, 35, 35], // Data from original general SMB context
+                    backgroundColor: ['#e57373', '#ef9a9a', '#ffccbc'], // Reddish tones for challenges
+                    borderColor: '#1a1a1a', // Dark background for border
+                    borderWidth: 2
+                }]
+            },
+            options: chartOptions
+        });
+    }
+
+    const barriersCtx = document.getElementById('barriersChart')?.getContext('2d');
+    if (barriersCtx) {
+        new Chart(barriersCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Lack of Expertise/Understanding', 'Lack of Trust in Outcomes', 'Security & Data Privacy Risks', 'Employee Skills Gaps'],
+                datasets: [{
+                    label: 'Adoption Barriers',
+                    data: [51, 50, 40, 40], // Data from IoD UK business leader survey
+                    backgroundColor: ['#4CAF50', '#81C784', '#A5D6A7', '#C8E6C9'], // Greenish tones for barriers
+                    borderColor: '#1a1a1a', // Dark background for border
+                    borderWidth: 2
+                }]
+            },
+            options: chartOptions
+        });
+    }
+
+    const debunkButtons = document.querySelectorAll('.debunk-btn');
+    debunkButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.closest('.card').classList.toggle('flipped');
+        });
+    });
+
+    const filterButtons = document.querySelectorAll('.app-filter-btn');
+    const appCards = document.querySelectorAll('.app-card');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+
+            filterButtons.forEach(b => b.classList.remove('active', 'bg-teal-600', 'text-white'));
+            filterButtons.forEach(b => b.classList.add('bg-gray-700', 'text-gray-300'));
+            btn.classList.add('active', 'bg-teal-600', 'text-white');
+            btn.classList.remove('bg-gray-700', 'text-gray-300');
+
+            appCards.forEach(card => {
+                if (filter === 'all' || card.dataset.category === filter) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    const roadmapSteps = document.querySelectorAll('.roadmap-step');
+    const stepContents = document.querySelectorAll('.step-content');
+    const roadmapPrompt = document.getElementById('roadmap-prompt');
+
+    function activateStep(stepNumber) {
+        roadmapPrompt.style.display = 'none';
+
+        roadmapSteps.forEach(s => {
+            const circle = s.querySelector('.step-circle');
+            if (s.dataset.step === stepNumber) {
+                circle.classList.add('bg-[#00BCD4]', 'text-white'); // Active teal color
+                circle.classList.remove('bg-gray-700', 'text-gray-300');
+            } else {
+                circle.classList.remove('bg-[#00BCD4]', 'text-white');
+                circle.classList.add('bg-gray-700', 'text-gray-300');
+            }
+        });
+
+        stepContents.forEach(content => {
+            if (content.dataset.stepContent === stepNumber) {
+                content.classList.remove('hidden');
+            } else {
+                content.classList.add('hidden');
+            }
+        });
+    }
+
+    activateStep('1');
+
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('main section[id]');
+
+    function updateActiveNavLink() {
+        let currentSectionId = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (window.scrollY >= sectionTop - 100) {
+                currentSectionId = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${currentSectionId}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', updateActiveNavLink);
+    updateActiveNavLink();
+
+
+    // --- Gemini API Integration for LLM Demos ---
+
+    // Property Description Generator
+    const propertyDetailsInput = document.getElementById('property-details-input');
+    const generatePropertyDescBtn = document.getElementById('generate-property-desc-btn');
+    const propertyDescOutput = document.getElementById('property-desc-output');
+    const propDescLoading = document.getElementById('prop-desc-loading');
+
+    generatePropertyDescBtn.addEventListener('click', async () => {
+        const details = propertyDetailsInput.value.trim();
+        if (!details) {
+            propertyDescOutput.textContent = 'Please enter property details to generate a description.';
+            return;
+        }
+
+        propDescLoading.classList.remove('hidden'); // Show loading spinner
+        propertyDescOutput.textContent = 'Generating...'; // Clear previous output and show generating message
+
+        // Construct the prompt for the LLM
+        const prompt = `As a professional UK estate agent copywriter, write a compelling property description for a listing. Focus on appealing to potential buyers. Incorporate the following details:\n\n${details}\n\nEnsure the tone is engaging and professional, and highlight the key selling points. Keep it concise, around 150-200 words.`;
+
+        try {
+            // Prepare the payload for the Gemini API
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+
+            // API key is intentionally left blank for Canvas to inject at runtime
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            // Make the fetch call to the Gemini API
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            // Check if the API response contains generated content
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                propertyDescOutput.textContent = text; // Display the generated description
+            } else {
+                propertyDescOutput.textContent = 'Failed to generate property description. Please try again.';
+                console.error('Gemini API response structure unexpected:', result);
+            }
+        } catch (error) {
+            propertyDescOutput.textContent = 'An error occurred while generating the description. Please check your input and try again.';
+            console.error('Error calling Gemini API:', error);
+        } finally {
+            propDescLoading.classList.add('hidden'); // Hide loading spinner
+        }
+    });
+
+    // Client Communication Drafter
+    const commScenarioInput = document.getElementById('comm-scenario-input');
+    const generateCommBtn = document.getElementById('generate-comm-btn');
+    const commOutput = document.getElementById('comm-output');
+    const commLoading = document.getElementById('comm-loading');
+
+    generateCommBtn.addEventListener('click', async () => {
+        const scenario = commScenarioInput.value.trim();
+        if (!scenario) {
+            commOutput.textContent = 'Please describe a communication scenario.';
+            return;
+        }
+
+        commLoading.classList.remove('hidden'); // Show loading spinner
+        commOutput.textContent = 'Drafting...'; // Clear previous output and show drafting message
+
+        // Construct the prompt for the LLM
+        const prompt = `As a professional UK estate agent, draft a clear and polite communication for the following scenario. Ensure the tone is appropriate for client interaction (professional but friendly) and includes a clear call to action where relevant. Respond directly with the drafted communication (e.g., an email or SMS body), no preamble.
+
+Scenario: ${scenario}`;
+
+        try {
+            // Prepare the payload for the Gemini API
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+
+            // API key is intentionally left blank for Canvas to inject at runtime
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            // Make the fetch call to the Gemini API
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            // Check if the API response contains generated content
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                commOutput.textContent = text; // Display the drafted communication
+            } else {
+                commOutput.textContent = 'Failed to draft communication. Please try again.';
+                console.error('Gemini API response structure unexpected:', result);
+            }
+        } catch (error) {
+            commOutput.textContent = 'An error occurred while drafting the communication. Please check your input and try again.';
+            console.error('Error calling Gemini API:', error);
+        } finally {
+            commLoading.classList.add('hidden'); // Hide loading spinner
+        }
+    });
+
+    // --- End Gemini API Integration ---
+});
+</script>
+</body>
+</html>
